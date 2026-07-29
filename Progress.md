@@ -7,7 +7,7 @@ This document tracks the progress of each phase outlined in `PROJECT_SPEC.md`.
 ## Phase Status Summary
 
 - [x] **Phase 1 — Project Setup** (Completed: 2026-07-29)
-- [ ] **Phase 2 — Routing**
+- [x] **Phase 2 — Routing** (Completed: 2026-07-29)
 - [ ] **Phase 3 — Supabase**
 - [ ] **Phase 4 — Business Context**
 - [ ] **Phase 5 — Chat Widget (UI only)**
@@ -34,3 +34,16 @@ This document tracks the progress of each phase outlined in `PROJECT_SPEC.md`.
   - [x] Repo is on GitHub (`git@github.com:Ham-07/ai-receptionist.git`)
   - [x] `.env.local` confirmed absent from the GitHub repo (verified via `git check-ignore` and untracked status)
   - [x] Homepage loads locally and dark mode toggles seamlessly
+
+---
+
+### Phase 2 — Routing
+**Goal:** Support dynamic businesses via slug, with reserved slugs excluded.
+
+- **Files Created/Modified:**
+  - `lib/constants.ts` (Exported `RESERVED_SLUGS`, `isReservedSlug`, `formatSlugToTitle`)
+  - `app/[slug]/page.tsx` (Dynamic tenant page using Next.js 15 `await params` pattern and reserved slug guard calling `notFound()`)
+  - `app/not-found.tsx` (Custom 404 page for reserved or non-existent business routes)
+- **Definition of Done:**
+  - [x] `/smile-dental` (or similar test slug) displays correctly with dynamic tenant branding
+  - [x] `/admin`, `/api`, `/dashboard`, `/widget`, etc. do NOT attempt to render as a business (triggers `notFound()` 404 page)
