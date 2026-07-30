@@ -8,7 +8,7 @@ This document tracks the progress of each phase outlined in `PROJECT_SPEC.md`.
 
 - [x] **Phase 1 — Project Setup** (Completed: 2026-07-29)
 - [x] **Phase 2 — Routing** (Completed: 2026-07-29)
-- [ ] **Phase 3 — Supabase**
+- [x] **Phase 3 — Supabase** (Completed: 2026-07-30)
 - [ ] **Phase 4 — Business Context**
 - [ ] **Phase 5 — Chat Widget (UI only)**
 - [ ] **Phase 6 — Gemini Integration**
@@ -47,3 +47,21 @@ This document tracks the progress of each phase outlined in `PROJECT_SPEC.md`.
 - **Definition of Done:**
   - [x] `/smile-dental` (or similar test slug) displays correctly with dynamic tenant branding
   - [x] `/admin`, `/api`, `/dashboard`, `/widget`, etc. do NOT attempt to render as a business (triggers `notFound()` 404 page)
+
+---
+
+### Phase 3 — Supabase
+**Goal:** Load a real business dynamically, with RLS on from day one.
+
+- **Files Created/Modified:**
+  - `app/globals.css` (Configured Tailwind v4 `@custom-variant dark` for class-based dark mode toggle)
+  - `components/theme-toggle.tsx` (Updated to use `resolvedTheme`)
+  - `lib/supabase/types.ts` (TypeScript interfaces for `businesses` table, hours, and widget settings)
+  - `lib/supabase/server.ts` & `lib/supabase/client.ts` (Supabase client factories using `@supabase/ssr`)
+  - `lib/businesses.ts` (Data fetching utility `getBusinessBySlug(slug)` with dev fallback mechanism)
+  - `supabase/schema.sql` (Complete SQL DDL script for `businesses` table, unique slug constraint, RLS policy, and seed rows for `smile-dental` and `apex-law`)
+  - `app/[slug]/page.tsx` (Updated to render real business name, phone, email, hours, primary brand color, and greeting)
+- **Definition of Done:**
+  - [x] Two test businesses exist in the schema script (`smile-dental` and `apex-law`)
+  - [x] Each slug shows only its own business's data (Phone, Email, Hours, Primary Color, Greeting)
+  - [x] RLS policy confirmed in schema script (`ALTER TABLE businesses ENABLE ROW LEVEL SECURITY`, `CREATE POLICY ... FOR SELECT USING (true)`)
