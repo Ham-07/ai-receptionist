@@ -1,18 +1,18 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { isReservedSlug } from "@/lib/constants";
-import { getBusinessBySlug } from "@/lib/businesses";
+import { getBusinessContextBySlug } from "@/lib/businesses";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { BusinessFaqs } from "@/components/business-faqs";
+import { BusinessServices } from "@/components/business-services";
+import { ChatWidget } from "@/components/chat-widget";
 import {
   Building2,
   Phone,
   Mail,
   Clock,
-  Bot,
   ArrowLeft,
   ShieldCheck,
-  Calendar,
-  MessageSquare,
 } from "lucide-react";
 
 interface BusinessPageProps {
@@ -29,18 +29,17 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
     notFound();
   }
 
-  // Fetch real business context dynamically from Supabase
-  const business = await getBusinessBySlug(slug);
+  // Fetch full business context (branding, FAQs, services) from Supabase
+  const context = await getBusinessContextBySlug(slug);
 
   // Custom 404 if slug doesn't exist in database
-  if (!business) {
+  if (!context) {
     notFound();
   }
 
+  const { business, faqs, services } = context;
   const primaryColor = business.primary_color || "#6366f1";
   const hours = business.business_hours;
-  const widgetGreeting =
-    business.widget_settings?.greeting || `Hello! Welcome to ${business.business_name}. How can we assist you today?`;
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300">
@@ -100,7 +99,7 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
             </h1>
 
             <p className="text-slate-600 dark:text-slate-400 text-base sm:text-lg max-w-2xl">
-              Official corporate profile dynamically loaded from Supabase database. Serving custom branding, schedule availability, and automated AI receptionist support.
+              Full business context loaded dynamically — branding, services, FAQs, and hours — scoped to this tenant only.
             </p>
           </div>
 
@@ -195,21 +194,20 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
             )}
           </div>
         </div>
+
+        {/* Services & FAQs — tenant-scoped relational data */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <BusinessServices services={services} primaryColor={primaryColor} />
+          <BusinessFaqs faqs={faqs} primaryColor={primaryColor} />
+        </div>
       </main>
 
-      {/* Dynamic Chat Widget Greeting Banner */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <div
-          className="flex items-center gap-3 p-4 rounded-2xl text-white shadow-xl hover:scale-105 transition-transform cursor-pointer"
-          style={{ backgroundColor: primaryColor }}
-        >
-          <Bot className="w-6 h-6 animate-bounce" />
-          <div className="hidden sm:block text-left max-w-xs">
-            <span className="text-xs opacity-90 block font-semibold">AI Receptionist</span>
-            <span className="text-xs truncate block">{widgetGreeting}</span>
-          </div>
-        </div>
-      </div>
+      <ChatWidget
+        businessId={business.id}
+        businessName={business.business_name}
+        widgetSettings={business.widget_settings}
+        primaryColor={business.primary_color}
+      />
     </div>
   );
 }

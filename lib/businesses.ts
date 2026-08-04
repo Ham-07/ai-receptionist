@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { Business } from "@/lib/supabase/types";
+import { Business, FAQ, Service, BusinessContext } from "@/lib/supabase/types";
 
 // Seed fallback data for local testing before Supabase project credentials are set up
 const MOCK_BUSINESSES: Record<string, Business> = {
@@ -53,16 +53,154 @@ const MOCK_BUSINESSES: Record<string, Business> = {
   },
 };
 
-export async function getBusinessBySlug(slug: string): Promise<Business | null> {
+const MOCK_FAQS: Record<string, FAQ[]> = {
+  "b1000000-0000-0000-0000-000000000001": [
+    {
+      id: "f1",
+      business_id: "b1000000-0000-0000-0000-000000000001",
+      question: "Do you accept new dental patients?",
+      answer: "Yes! We welcome new patients of all ages. You can schedule your initial appointment through our concierge.",
+    },
+    {
+      id: "f2",
+      business_id: "b1000000-0000-0000-0000-000000000001",
+      question: "What insurance plans do you accept?",
+      answer: "We accept most major PPO dental insurance providers including Delta Dental, Cigna, MetLife, and Aetna.",
+    },
+    {
+      id: "f3",
+      business_id: "b1000000-0000-0000-0000-000000000001",
+      question: "How long does a routine cleaning take?",
+      answer: "A standard preventive cleaning and oral examination takes approximately 45 to 60 minutes.",
+    },
+  ],
+  "b2000000-0000-0000-0000-000000000002": [
+    {
+      id: "f4",
+      business_id: "b2000000-0000-0000-0000-000000000002",
+      question: "What legal areas do you specialize in?",
+      answer: "We specialize in corporate governance, intellectual property defense, commercial litigation, and contract advisory.",
+    },
+    {
+      id: "f5",
+      business_id: "b2000000-0000-0000-0000-000000000002",
+      question: "How much is the initial consultation fee?",
+      answer: "We offer a complimentary 15-minute preliminary case evaluation for prospective commercial clients.",
+    },
+  ],
+};
+
+const MOCK_SERVICES: Record<string, Service[]> = {
+  "b1000000-0000-0000-0000-000000000001": [
+    {
+      id: "s1",
+      business_id: "b1000000-0000-0000-0000-000000000001",
+      name: "Preventive Teeth Cleaning",
+      description: "Comprehensive oral examination, ultrasonic plaque removal, polishing, and oral cancer screening.",
+    },
+    {
+      id: "s2",
+      business_id: "b1000000-0000-0000-0000-000000000001",
+      name: "Professional Laser Whitening",
+      description: "In-office teeth whitening delivering up to 8 shades brighter teeth in a single 60-minute session.",
+    },
+    {
+      id: "s3",
+      business_id: "b1000000-0000-0000-0000-000000000001",
+      name: "Porcelain Crowns & Veneers",
+      description: "Custom-crafted ceramic crowns and aesthetic veneers designed for natural strength and beauty.",
+    },
+  ],
+  "b2000000-0000-0000-0000-000000000002": [
+    {
+      id: "s4",
+      business_id: "b2000000-0000-0000-0000-000000000002",
+      name: "Corporate Governance & Advisory",
+      description: "Strategic counsel on entity structuring, shareholder agreements, compliance, and venture financing.",
+    },
+    {
+      id: "s5",
+      business_id: "b2000000-0000-0000-0000-000000000002",
+      name: "Commercial Contract Drafting",
+      description: "Custom drafting and rigorous risk-mitigation review of enterprise software and vendor agreements.",
+    },
+    {
+      id: "s6",
+      business_id: "b2000000-0000-0000-0000-000000000002",
+      name: "Intellectual Property Defense",
+      description: "Trademark registration, patent portfolio management, and copyright infringement protection.",
+    },
+  ],
+};
+
+function getMockBusinessById(businessId: string): Business | null {
+  for (const business of Object.values(MOCK_BUSINESSES)) {
+    if (business.id === businessId) return business;
+  }
+  return null;
+}
+
+const isRealSupabaseConfigured = (): boolean => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-
-  // Check if real Supabase URL is configured (not default placeholder)
-  const isRealSupabaseConfigured =
+  return Boolean(
     supabaseUrl &&
-    !supabaseUrl.includes("your-project.supabase.co") &&
-    supabaseUrl.startsWith("https://");
+      !supabaseUrl.includes("your-project.supabase.co") &&
+      supabaseUrl.startsWith("https://")
+  );
+};
 
-  if (isRealSupabaseConfigured) {
+export async function getBusinessContextById(
+  businessId: string
+): Promise<BusinessContext | null> {
+  if (isRealSupabaseConfigured()) {
+    try {
+      const supabase = await createClient();
+
+      const [businessRes, faqsRes, servicesRes] = await Promise.all([
+        supabase
+          .from("businesses")
+          .select("*")
+          .eq("id", businessId)
+          .maybeSingle(),
+        supabase
+          .from("faqs")
+          .select("*")
+          .eq("business_id", businessId)
+          .order("created_at", { ascending: true }),
+        supabase
+          .from("services")
+          .select("*")
+          .eq("business_id", businessId)
+          .order("created_at", { ascending: true }),
+      ]);
+
+      const business = businessRes.data as Business | null;
+      if (business) {
+        const faqs = (faqsRes.data as FAQ[]) || [];
+        const services = (servicesRes.data as Service[]) || [];
+        return {
+          business,
+          faqs: faqs.length > 0 ? faqs : MOCK_FAQS[businessId] || [],
+          services: services.length > 0 ? services : MOCK_SERVICES[businessId] || [],
+        };
+      }
+    } catch (err) {
+      console.error("Failed to fetch business context by id:", err);
+    }
+  }
+
+  const mockBusiness = getMockBusinessById(businessId);
+  if (!mockBusiness) return null;
+
+  return {
+    business: mockBusiness,
+    faqs: MOCK_FAQS[businessId] || [],
+    services: MOCK_SERVICES[businessId] || [],
+  };
+}
+
+export async function getBusinessBySlug(slug: string): Promise<Business | null> {
+  if (isRealSupabaseConfigured()) {
     try {
       const supabase = await createClient();
       const { data, error } = await supabase
@@ -83,7 +221,50 @@ export async function getBusinessBySlug(slug: string): Promise<Business | null> 
     }
   }
 
-  // Fallback to local test data for seamless local development
   const mock = MOCK_BUSINESSES[slug.toLowerCase()];
   return mock || null;
+}
+
+export async function getBusinessContextBySlug(
+  slug: string
+): Promise<BusinessContext | null> {
+  const business = await getBusinessBySlug(slug);
+  if (!business) return null;
+
+  if (isRealSupabaseConfigured()) {
+    try {
+      const supabase = await createClient();
+
+      const [faqsRes, servicesRes] = await Promise.all([
+        supabase
+          .from("faqs")
+          .select("*")
+          .eq("business_id", business.id)
+          .order("created_at", { ascending: true }),
+        supabase
+          .from("services")
+          .select("*")
+          .eq("business_id", business.id)
+          .order("created_at", { ascending: true }),
+      ]);
+
+      const faqs = (faqsRes.data as FAQ[]) || [];
+      const services = (servicesRes.data as Service[]) || [];
+
+      // If live Supabase tables return rows, use them; otherwise fallback to mock for that business
+      return {
+        business,
+        faqs: faqs.length > 0 ? faqs : MOCK_FAQS[business.id] || [],
+        services: services.length > 0 ? services : MOCK_SERVICES[business.id] || [],
+      };
+    } catch (err) {
+      console.error("Failed to fetch relational context from Supabase:", err);
+    }
+  }
+
+  return {
+    business,
+    faqs: MOCK_FAQS[business.id] || [],
+    services: MOCK_SERVICES[business.id] || [],
+  };
 }

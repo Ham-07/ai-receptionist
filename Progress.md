@@ -9,9 +9,9 @@ This document tracks the progress of each phase outlined in `PROJECT_SPEC.md`.
 - [x] **Phase 1 — Project Setup** (Completed: 2026-07-29)
 - [x] **Phase 2 — Routing** (Completed: 2026-07-29)
 - [x] **Phase 3 — Supabase** (Completed: 2026-07-30)
-- [ ] **Phase 4 — Business Context**
-- [ ] **Phase 5 — Chat Widget (UI only)**
-- [ ] **Phase 6 — Gemini Integration**
+- [x] **Phase 4 — Business Context** (Completed: 2026-08-02)
+- [x] **Phase 5 — Chat Widget (UI only)** (Completed: 2026-08-03)
+- [x] **Phase 6 — Gemini Integration** (Completed: 2026-08-04)
 - [ ] **Phase 7 — Lead Capture**
 - [ ] **Phase 8 — Dashboard (Authenticated)**
 - [ ] **Phase 9 — Widget Embed Script**
@@ -65,3 +65,49 @@ This document tracks the progress of each phase outlined in `PROJECT_SPEC.md`.
   - [x] Two test businesses exist in the schema script (`smile-dental` and `apex-law`)
   - [x] Each slug shows only its own business's data (Phone, Email, Hours, Primary Color, Greeting)
   - [x] RLS policy confirmed in schema script (`ALTER TABLE businesses ENABLE ROW LEVEL SECURITY`, `CREATE POLICY ... FOR SELECT USING (true)`)
+
+---
+
+### Phase 4 — Business Context
+**Goal:** Load full business context (still no AI).
+
+- **Files Created/Modified:**
+  - `supabase/schema_phase4.sql` (DDL for `faqs` & `services` tables, RLS public-read policies, seed rows for both test businesses)
+  - `lib/supabase/types.ts` (Added `FAQ`, `Service`, and `BusinessContext` interfaces)
+  - `lib/businesses.ts` (Added `getBusinessContextBySlug()` with parallel Supabase queries + mock fallback per business)
+  - `components/business-faqs.tsx` (Accordion FAQ display, client component)
+  - `components/business-services.tsx` (Service cards grid display)
+  - `app/[slug]/page.tsx` (Switched to `getBusinessContextBySlug`, renders services + FAQs alongside branding)
+- **Definition of Done:**
+  - [x] `faqs` and `services` tables defined with RLS enabled and public read policies in `schema_phase4.sql`
+  - [x] Each slug loads only its own FAQs and services (verified via distinct mock seed data per business ID)
+  - [x] Business page displays branding, contact, hours, services, and FAQs — all scoped to the current tenant
+
+---
+
+### Phase 5 — Chat Widget (UI only)
+**Goal:** Build the widget interface, no AI wired up yet.
+
+- **Files Created/Modified:**
+  - `components/chat-widget.tsx` (Floating button, open/close panel, local chat history, typing indicator, config-driven `widget_settings`)
+  - `app/[slug]/page.tsx` (Replaced static greeting banner with `<ChatWidget />`)
+- **Definition of Done:**
+  - [x] Widget opens/closes correctly — toggle button, header close button, responsive panel sizing
+  - [x] Two businesses show different widget appearance via `widget_settings` (theme color, greeting, position) with no code changes
+
+---
+
+### Phase 6 — Gemini Integration
+**Goal:** Connect AI, scoped strictly to business context, protected from abuse.
+
+- **Files Created/Modified:**
+  - `lib/gemini.ts` (Google Gen AI SDK integration, `gemini-1.5-flash` model, 300 maxOutputTokens, strict system prompt enforcing zero general knowledge and fallback response)
+  - `lib/rate-limit.ts` (Sliding-window rate limiter using Supabase `rate_limits` table via service-role client)
+  - `lib/supabase/service.ts` (Service-role Supabase client bypassing client RLS for rate-limit management)
+  - `app/api/chat/[businessId]/route.ts` (Route handler parsing UUID, Zod input validation, server-side context lookup, business rate-limiting, and Gemini streaming/response generation)
+  - `components/chat-widget.tsx` (Updated to send user messages to `/api/chat/[businessId]` and render dynamic AI responses)
+  - `supabase/schema_phase6.sql` (DDL for `rate_limits` table with RLS enabled and zero public policies)
+- **Definition of Done:**
+  - [x] Off-topic question to two different businesses' widgets stays strictly scoped to its own data without leaking info
+  - [x] Fallback response ("I'll ask our team to contact you.") triggers for unknown questions outside context
+  - [x] Rate limiting blocks excessive requests per business (10 req/min cap)

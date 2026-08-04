@@ -26,3 +26,25 @@ export interface Business {
   widget_settings: WidgetSettings | null;
   created_at: string;
 }
+
+export interface FAQ {
+  id: string;
+  business_id: string;
+  question: string;
+  answer: string;
+  created_at?: string;
+}
+
+export interface Service {
+  id: string;
+  business_id: string;
+  name: string;
+  description: string | null;
+  created_at?: string;
+}
+
+export interface BusinessContext {
+  business: Business;
+  faqs: FAQ[];
+  services: Service[];
+}
