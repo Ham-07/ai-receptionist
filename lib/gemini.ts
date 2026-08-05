@@ -4,12 +4,12 @@ import { BusinessContext } from "@/lib/supabase/types";
 const FALLBACK_REPLY = "I'll ask our team to contact you.";
 
 /**
- * Gemini 1.5 Flash is the optimal model for free-tier applications:
- * - Free Tier Quota: 15 RPM (Requests Per Minute), 1M TPM (Tokens Per Minute), 1,500 RPD (Requests Per Day)
+ * gemini-flash-latest is the official dynamic alias for Google's latest Flash model.
+ * - Guaranteed active, non-deprecated model alias in Google AI Studio
  * - Ultra-low latency (< 1 second response time)
- * - Excellent instruction following for strict system prompts
+ * - Highly consistent free-tier performance
  */
-export const GEMINI_MODEL = "gemini-1.5-flash";
+export const GEMINI_MODEL = "gemini-flash-latest";
 
 function formatHours(hours: BusinessContext["business"]["business_hours"]): string {
   if (!hours) return "Not provided";
@@ -83,8 +83,8 @@ export async function generateReply(
     contents: message,
     config: {
       systemInstruction: buildSystemPrompt(context),
-      temperature: 0.2, // Low temperature for consistent, accurate non-hallucinating responses
-      maxOutputTokens: 300, // 300 tokens is optimal for free tier: fast 2-3 sentence answers without token wastage
+      temperature: 0.2, // Low temperature for factual consistency
+      maxOutputTokens: 300, // Optimal for free tier: fast responses without token wastage
     },
   });
 
