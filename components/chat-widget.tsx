@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import { WidgetSettings } from "@/lib/supabase/types";
-import { Bot, X, Send, Minus, Sparkles } from "lucide-react";
+import { LeadForm } from "@/components/lead-form";
+import { Bot, X, Send, Minus, Sparkles, MessageSquare, Mail } from "lucide-react";
 
 interface ChatMessage {
   id: string;
@@ -63,6 +64,7 @@ export function ChatWidget({
     `Hello! Welcome to ${businessName}. How can we assist you today?`;
 
   const [isOpen, setIsOpen] = React.useState(false);
+  const [activeTab, setActiveTab] = React.useState<"chat" | "lead">("chat");
   const [showTeaser, setShowTeaser] = React.useState(true);
   const [messages, setMessages] = React.useState<ChatMessage[]>([]);
   const [input, setInput] = React.useState("");
@@ -78,8 +80,10 @@ export function ChatWidget({
   }, []);
 
   React.useEffect(() => {
-    scrollToBottom();
-  }, [messages, isTyping, scrollToBottom]);
+    if (activeTab === "chat") {
+      scrollToBottom();
+    }
+  }, [messages, isTyping, activeTab, scrollToBottom]);
 
   React.useEffect(() => {
     if (isOpen && !hasGreeted) {
@@ -97,10 +101,10 @@ export function ChatWidget({
   }, [isOpen, hasGreeted, greeting]);
 
   React.useEffect(() => {
-    if (isOpen) {
+    if (isOpen && activeTab === "chat") {
       inputRef.current?.focus();
     }
-  }, [isOpen]);
+  }, [isOpen, activeTab]);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -164,7 +168,7 @@ export function ChatWidget({
         isLeft ? "left-5 sm:left-6 items-start" : "right-5 sm:right-6"
       }`}
     >
-      {/* Teaser bubble — shown before first open */}
+      {/* Teaser bubble */}
       {!isOpen && showTeaser && (
         <div
           className={`chat-widget-teaser relative max-w-[260px] sm:max-w-[280px] ${
@@ -195,7 +199,6 @@ export function ChatWidget({
               Start a conversation →
             </p>
           </button>
-          {/* Speech tail */}
           <div
             className={`absolute -bottom-2 w-4 h-4 bg-white dark:bg-slate-900 border-r border-b border-slate-100 dark:border-slate-800 rotate-45 ${
               isLeft ? "left-6" : "right-6"
@@ -212,16 +215,15 @@ export function ChatWidget({
         >
           {/* Header */}
           <div
-            className="relative shrink-0 px-5 pt-5 pb-4 text-white overflow-hidden"
+            className="relative shrink-0 px-5 pt-5 pb-3 text-white overflow-hidden"
             style={{
               background: `linear-gradient(145deg, ${themeColor} 0%, ${themeColor}dd 50%, ${themeColor}bb 100%)`,
             }}
           >
-            {/* Decorative circles */}
             <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-white/10 pointer-events-none" />
             <div className="absolute -bottom-12 -left-6 w-24 h-24 rounded-full bg-white/5 pointer-events-none" />
 
-            <div className="relative flex items-start justify-between gap-3">
+            <div className="relative flex items-start justify-between gap-3 mb-3">
               <div className="flex items-center gap-3.5 min-w-0">
                 <div className="relative shrink-0">
                   <div className="w-11 h-11 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center ring-2 ring-white/30">
@@ -234,7 +236,7 @@ export function ChatWidget({
                     {businessName}
                   </p>
                   <p className="text-xs text-white/80 mt-0.5">
-                    AI Receptionist · Typically replies instantly
+                    AI Concierge & Digital Reception
                   </p>
                 </div>
               </div>
@@ -256,81 +258,129 @@ export function ChatWidget({
                 </button>
               </div>
             </div>
-          </div>
 
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-4 py-5 space-y-5 bg-[#f4f5f7] dark:bg-slate-950/80 chat-widget-scroll">
-            {/* Date pill */}
-            <div className="flex justify-center">
-              <span className="px-3 py-1 rounded-full text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-white/80 dark:bg-slate-800/80 shadow-sm border border-slate-100 dark:border-slate-700/60">
-                Today
-              </span>
-            </div>
-
-            {messages.map((msg) =>
-              msg.role === "assistant" ? (
-                <div key={msg.id} className="flex gap-2.5 items-end max-w-[92%]">
-                  <AssistantAvatar color={themeColor} />
-                  <div className="space-y-1 min-w-0">
-                    <div className="px-4 py-2.5 rounded-2xl rounded-tl-sm bg-white dark:bg-slate-800 text-[13.5px] leading-relaxed text-slate-700 dark:text-slate-200 shadow-sm border border-slate-100/80 dark:border-slate-700/60">
-                      {msg.content}
-                    </div>
-                    <p className="text-[10px] text-slate-400 pl-1">
-                      {formatTime(msg.timestamp)}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div key={msg.id} className="flex flex-col items-end gap-1">
-                  <div
-                    className="max-w-[85%] px-4 py-2.5 rounded-2xl rounded-tr-sm text-[13.5px] leading-relaxed text-white shadow-sm"
-                    style={{ backgroundColor: themeColor }}
-                  >
-                    {msg.content}
-                  </div>
-                  <p className="text-[10px] text-slate-400 pr-1">
-                    {formatTime(msg.timestamp)}
-                  </p>
-                </div>
-              )
-            )}
-
-            {isTyping && (
-              <div className="flex gap-2.5 items-end">
-                <AssistantAvatar color={themeColor} />
-                <TypingIndicator />
-              </div>
-            )}
-
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* Input */}
-          <div className="shrink-0 px-4 py-3.5 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
-            <form onSubmit={handleSend} className="relative flex items-center">
-              <input
-                ref={inputRef}
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Write a message..."
-                className="w-full pl-4 pr-12 py-3 text-sm rounded-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 border border-transparent focus:outline-none focus:border-slate-200 dark:focus:border-slate-600 focus:bg-white dark:focus:bg-slate-800 transition-all"
-                disabled={isTyping}
-              />
+            {/* Mode Tab Selector (AI Chat vs Leave Message) */}
+            <div className="relative flex items-center p-1 rounded-xl bg-black/15 backdrop-blur-md">
               <button
-                type="submit"
-                disabled={!input.trim() || isTyping}
-                className="absolute right-1.5 p-2.5 rounded-full text-white transition-all disabled:opacity-30 disabled:scale-95 hover:scale-105 active:scale-95 shadow-sm"
-                style={{ backgroundColor: themeColor }}
-                aria-label="Send message"
+                onClick={() => setActiveTab("chat")}
+                className={`flex-1 py-1.5 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all ${
+                  activeTab === "chat"
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-white/80 hover:text-white"
+                }`}
               >
-                <Send className="w-4 h-4" strokeWidth={2.5} />
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span>AI Chat</span>
               </button>
-            </form>
-            <p className="text-center text-[10px] text-slate-400 mt-2.5 tracking-wide">
-              Powered by AI Receptionist
-            </p>
+              <button
+                onClick={() => setActiveTab("lead")}
+                className={`flex-1 py-1.5 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all ${
+                  activeTab === "lead"
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-white/80 hover:text-white"
+                }`}
+              >
+                <Mail className="w-3.5 h-3.5" />
+                <span>Leave Message</span>
+              </button>
+            </div>
           </div>
+
+          {/* Tab Content */}
+          {activeTab === "chat" ? (
+            <>
+              {/* Messages View */}
+              <div className="flex-1 overflow-y-auto px-4 py-5 space-y-5 bg-[#f4f5f7] dark:bg-slate-950/80 chat-widget-scroll">
+                <div className="flex justify-center">
+                  <span className="px-3 py-1 rounded-full text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-white/80 dark:bg-slate-800/80 shadow-sm border border-slate-100 dark:border-slate-700/60">
+                    Today
+                  </span>
+                </div>
+
+                {messages.map((msg) =>
+                  msg.role === "assistant" ? (
+                    <div key={msg.id} className="flex gap-2.5 items-end max-w-[92%]">
+                      <AssistantAvatar color={themeColor} />
+                      <div className="space-y-1 min-w-0">
+                        <div className="px-4 py-2.5 rounded-2xl rounded-tl-sm bg-white dark:bg-slate-800 text-[13.5px] leading-relaxed text-slate-700 dark:text-slate-200 shadow-sm border border-slate-100/80 dark:border-slate-700/60">
+                          {msg.content}
+                        </div>
+                        <p className="text-[10px] text-slate-400 pl-1">
+                          {formatTime(msg.timestamp)}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div key={msg.id} className="flex flex-col items-end gap-1">
+                      <div
+                        className="max-w-[85%] px-4 py-2.5 rounded-2xl rounded-tr-sm text-[13.5px] leading-relaxed text-white shadow-sm"
+                        style={{ backgroundColor: themeColor }}
+                      >
+                        {msg.content}
+                      </div>
+                      <p className="text-[10px] text-slate-400 pr-1">
+                        {formatTime(msg.timestamp)}
+                      </p>
+                    </div>
+                  )
+                )}
+
+                {isTyping && (
+                  <div className="flex gap-2.5 items-end">
+                    <AssistantAvatar color={themeColor} />
+                    <TypingIndicator />
+                  </div>
+                )}
+
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Chat Input */}
+              <div className="shrink-0 px-4 py-3.5 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
+                <form onSubmit={handleSend} className="relative flex items-center">
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Write a message..."
+                    className="w-full pl-4 pr-12 py-3 text-sm rounded-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 border border-transparent focus:outline-none focus:border-slate-200 dark:focus:border-slate-600 focus:bg-white dark:focus:bg-slate-800 transition-all"
+                    disabled={isTyping}
+                  />
+                  <button
+                    type="submit"
+                    disabled={!input.trim() || isTyping}
+                    className="absolute right-1.5 p-2.5 rounded-full text-white transition-all disabled:opacity-30 disabled:scale-95 hover:scale-105 active:scale-95 shadow-sm"
+                    style={{ backgroundColor: themeColor }}
+                    aria-label="Send message"
+                  >
+                    <Send className="w-4 h-4" strokeWidth={2.5} />
+                  </button>
+                </form>
+                <p className="text-center text-[10px] text-slate-400 mt-2.5 tracking-wide">
+                  Powered by AI Receptionist
+                </p>
+              </div>
+            </>
+          ) : (
+            /* Lead Form View */
+            <div className="flex-1 overflow-y-auto p-5 bg-[#f4f5f7] dark:bg-slate-950/80 chat-widget-scroll">
+              <div className="mb-4">
+                <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">
+                  Direct Lead Inquiry
+                </h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Send your details to {businessName}. We will respond directly to your email.
+                </p>
+              </div>
+
+              <LeadForm
+                businessId={businessId}
+                businessName={businessName}
+                primaryColor={themeColor}
+              />
+            </div>
+          )}
         </div>
       )}
 
@@ -369,7 +419,6 @@ export function ChatWidget({
           </svg>
         </span>
 
-        {/* Pulse ring when closed */}
         {!isOpen && (
           <span
             className="absolute inset-0 rounded-full chat-widget-pulse pointer-events-none"

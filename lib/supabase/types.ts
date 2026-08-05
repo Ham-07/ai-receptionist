@@ -48,3 +48,24 @@ export interface BusinessContext {
   faqs: FAQ[];
   services: Service[];
 }
+
+export type LeadStatus = "new" | "contacted" | "closed";
+
+export interface Lead {
+  id: string;
+  business_id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  message: string | null;
+  status: LeadStatus;
+  created_at: string;
+}
+
+export interface CreateLeadInput {
+  business_id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  message?: string;
+}

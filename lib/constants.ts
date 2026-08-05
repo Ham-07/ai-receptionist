@@ -1,3 +1,11 @@
+/** Matches Postgres uuid text form (same check as /api/chat/[businessId]). */
+export const UUID_FORMAT =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export function isUuid(value: string): boolean {
+  return UUID_FORMAT.test(value);
+}
+
 export const RESERVED_SLUGS = [
   "api",
   "admin",

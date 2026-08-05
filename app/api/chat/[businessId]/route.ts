@@ -13,7 +13,7 @@ export const runtime = "nodejs";
 const CHAT_REQUEST_LIMIT = 10;
 const CHAT_WINDOW_SECONDS = 60;
 
-const UUID_FORMAT = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+import { UUID_FORMAT } from "@/lib/constants";
 
 const ChatRequestBody = z.object({
   message: z.string().trim().min(1).max(2000),

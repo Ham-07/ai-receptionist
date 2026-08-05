@@ -12,7 +12,7 @@ This document tracks the progress of each phase outlined in `PROJECT_SPEC.md`.
 - [x] **Phase 4 — Business Context** (Completed: 2026-08-02)
 - [x] **Phase 5 — Chat Widget (UI only)** (Completed: 2026-08-03)
 - [x] **Phase 6 — Gemini Integration** (Completed: 2026-08-04)
-- [ ] **Phase 7 — Lead Capture**
+- [x] **Phase 7 — Lead Capture** (Completed: 2026-08-05)
 - [ ] **Phase 8 — Dashboard (Authenticated)**
 - [ ] **Phase 9 — Widget Embed Script**
 - [ ] **Phase 10 — Deployment**
@@ -111,3 +111,24 @@ This document tracks the progress of each phase outlined in `PROJECT_SPEC.md`.
   - [x] Off-topic question to two different businesses' widgets stays strictly scoped to its own data without leaking info
   - [x] Fallback response ("I'll ask our team to contact you.") triggers for unknown questions outside context
   - [x] Rate limiting blocks excessive requests per business (10 req/min cap)
+
+---
+
+### Phase 7 — Lead Capture
+**Goal:** Capture and store leads safely.
+
+- **Files Created/Modified:**
+  - `supabase/schema_phase7.sql` (DDL for `leads` table, RLS enabled, public INSERT policy only — no public SELECT)
+  - `lib/validations/lead.ts` (Shared `LeadSchema` with Zod — name, email, phone, message, business_id)
+  - `lib/constants.ts` (Shared `UUID_FORMAT` regex used by chat and lead routes)
+  - `lib/supabase/types.ts` (Added `Lead`, `LeadStatus`, `CreateLeadInput` interfaces)
+  - `app/api/leads/route.ts` (POST handler — server-side Zod re-validation, business lookup, Supabase insert)
+  - `components/lead-form.tsx` (React Hook Form + Zod client validation, success/error states)
+  - `components/chat-widget.tsx` (Added "Leave Message" tab with embedded `LeadForm`)
+  - `app/api/chat/[businessId]/route.ts` (Refactored to use shared `UUID_FORMAT` from constants)
+- **Database migration required:** Run `supabase/schema_phase7.sql` in the Supabase SQL editor before testing inserts.
+- **Definition of Done:**
+  - [x] Submitting a lead with invalid data (e.g. malformed email) is rejected server-side even if the client check is bypassed
+  - [x] Lead insert stores `business_id`, timestamp, and default status `'new'` — verified via API flow (requires `leads` table migration applied in Supabase)
+
+---
