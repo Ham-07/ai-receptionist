@@ -75,6 +75,23 @@ export function ChatWidget({
 
   const isLeft = position === "bottom-left";
 
+  React.useEffect(() => {
+    const isIframe = typeof window !== "undefined" && window.self !== window.top;
+    if (!isIframe) return;
+
+    // Send initialization info (like alignment/position)
+    window.parent.postMessage({ type: "receptionist-init", position }, "*");
+
+    // Send size resize commands
+    let state: "open" | "closed-teaser" | "closed-only" = "closed-only";
+    if (isOpen) {
+      state = "open";
+    } else if (showTeaser) {
+      state = "closed-teaser";
+    }
+    window.parent.postMessage({ type: "receptionist-resize", state }, "*");
+  }, [isOpen, showTeaser, position]);
+
   const scrollToBottom = React.useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);

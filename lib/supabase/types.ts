@@ -69,3 +69,10 @@ export interface CreateLeadInput {
   phone?: string;
   message?: string;
 }
+
+export interface DashboardUser {
+  id: string;
+  auth_user_id: string;
+  business_id: string;
+  created_at?: string;
+}

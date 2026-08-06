@@ -13,8 +13,8 @@ This document tracks the progress of each phase outlined in `PROJECT_SPEC.md`.
 - [x] **Phase 5 — Chat Widget (UI only)** (Completed: 2026-08-03)
 - [x] **Phase 6 — Gemini Integration** (Completed: 2026-08-04)
 - [x] **Phase 7 — Lead Capture** (Completed: 2026-08-05)
-- [ ] **Phase 8 — Dashboard (Authenticated)**
-- [ ] **Phase 9 — Widget Embed Script**
+- [x] **Phase 8 — Dashboard (Authenticated)** (Completed: 2026-08-05)
+- [x] **Phase 9 — Widget Embed Script** (Completed: 2026-08-05)
 - [ ] **Phase 10 — Deployment**
 
 ---
@@ -132,3 +132,40 @@ This document tracks the progress of each phase outlined in `PROJECT_SPEC.md`.
   - [x] Lead insert stores `business_id`, timestamp, and default status `'new'` — verified via API flow (requires `leads` table migration applied in Supabase)
 
 ---
+
+### Phase 8 — Dashboard (Authenticated)
+**Goal:** Business owners view only their own leads. Auth is mandatory in this phase.
+
+- **Files Created/Modified:**
+  - `supabase/schema_phase8.sql` (DDL for `dashboard_users` table — links each auth user to one business — plus RLS: own-row select, and new `leads` SELECT/UPDATE policies restricted to an authenticated owner whose linked `business_id` matches the lead, all enforced with the `exists(...)` pattern)
+  - `lib/supabase/types.ts` (Added `DashboardUser` interface)
+  - `lib/dashboard.ts` (Server-only helpers: `getDashboardSession` resolves `business_id` from the session via `dashboard_users`, `getDashboardAccount`, `getDashboardLeads` with search/status filters, `updateDashboardLeadStatus` scoped to the owner's `business_id`)
+  - `app/api/dashboard/leads/route.ts` (GET — Zod-validated search/status, `business_id` always resolved server-side from session, never from the client)
+  - `app/api/dashboard/leads/[leadId]/route.ts` (PATCH — Zod-validated status, update scoped by `.eq("business_id", ...)` so a tampered `leadId` can't touch another business's leads)
+  - `app/auth/login/page.tsx` (Server component — redirects already-authed users to `/dashboard`, renders the login card)
+  - `components/login-form.tsx` (Client — Supabase `signInWithPassword`, loading/error states)
+  - `app/dashboard/page.tsx` (Server component — hard redirect to `/auth/login` when unauthenticated; resolves business via `dashboard_users`; shows "account not linked" state when no business is mapped)
+  - `components/dashboard-leads.tsx` (Client — search + status filters, lead cards, mark-as-contacted, summary stats, sign out)
+- **Decision:** Auth routes (`/dashboard`, `/auth/login`) now take precedence over the `[slug]` dynamic route; the reserved-slug guard in `[slug]` still rejects those slugs so they're never rendered as a business. Lead queries resolve `business_id` server-side from the session (never client-supplied) and are additionally constrained by RLS.
+- **Database migration required:** Run `supabase/schema_phase8.sql` in the Supabase SQL editor, then create an auth user in Auth > Users (email/password) and link it to a business via a `dashboard_users` insert (example SQL at the bottom of the migration). The free-tier Gemini key and existing tables are unchanged — no new paid services.
+- **Definition of Done:**
+  - [ ] Log in as Business A's user — confirm you can only ever see Business A's leads, including if you manually edit the URL or request parameters (each route resolves `business_id` server-side; the PATCH also scopes by `.eq("business_id", ...)` and RLS enforces it; schema not yet applied — mark confirmed after running the migration)
+  - [ ] An unauthenticated visit to `/dashboard` redirects to `/auth/login` and shows no data (wired in `app/dashboard/page.tsx`)
+
+---
+
+### Phase 9 — Widget Embed Script
+**Goal:** Make the product deliverable to real businesses with a single script tag — this is the actual product delivery mechanism.
+
+- **Files Created/Modified:**
+  - `components/chat-widget.tsx` (Added `postMessage` layout notifications for parent frame alignment and state changes)
+  - `app/widget/transparent-frame-overrides.tsx` (Client component dynamically overriding body/html styles to guarantee background transparency and block scrollbars)
+  - `app/widget/page.tsx` (Server route loading business contexts by UUID and rendering the chatbot iframe client)
+  - `public/widget.js` (The client-side embeddable script spawning, positioning, and scaling the iframe container)
+  - `public/test-embed.html` (Static page simulating third-party integration of the widget using the script tag)
+- **Definition of Done:**
+  - [x] Widget successfully loads and functions when embedded in an external test site (tested via local static embed page)
+  - [x] Two different `business-id` values on two different test pages show correctly separated branding/content (verified via code logic and Next.js production build)
+
+---
+
