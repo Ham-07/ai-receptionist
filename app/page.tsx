@@ -1,151 +1,396 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
   Bot,
+  Menu,
+  X,
   Zap,
-  ShieldCheck,
-  Code2,
-  Sparkles,
+  Target,
+  Globe,
+  PhoneCall,
+  Mail,
+  Phone,
+  MessageCircle,
   ArrowRight,
-  Layers,
+  ArrowUpRight,
   CheckCircle2,
 } from "lucide-react";
 
+// Single edit point for the brand name shown in the navbar and footer.
+const BRAND = "Systemic AI";
+
+const NAV_LINKS = [
+  { label: "Projects", href: "#projects" },
+  { label: "Services", href: "#services" },
+  { label: "Contact", href: "#contact" },
+];
+
+const PROJECTS = [
+  {
+    slug: "/smile-dental",
+    name: "Smile Dental",
+    industry: "Dental Clinic",
+    description:
+      "Handles appointment booking, insurance questions, and after-hours patient inquiries so the front desk never misses a call.",
+    tags: ["AI Receptionist", "Booking", "Lead Capture"],
+    latency: "142ms",
+  },
+  {
+    slug: "/apex-law",
+    name: "Apex Law",
+    industry: "Law Firm",
+    description:
+      "Qualifies new case inquiries, schedules consultations, and routes urgent matters straight to the right attorney.",
+    tags: ["AI Receptionist", "Intake", "Lead Capture"],
+    latency: "98ms",
+  },
+];
+
+const SERVICES = [
+  {
+    icon: Zap,
+    title: "AI Automation",
+    description:
+      "We map your repetitive front-office and back-office work and replace it with AI workflows that run on their own, day and night.",
+  },
+  {
+    icon: PhoneCall,
+    title: "AI Receptionist",
+    description:
+      "A always-on AI receptionist that answers calls and chats, books appointments, and sounds like a trained member of your team.",
+  },
+  {
+    icon: Target,
+    title: "Leads Tracking",
+    description:
+      "Every inquiry is captured, qualified, and logged in a live dashboard, so no lead sits in an inbox unanswered.",
+  },
+  {
+    icon: Globe,
+    title: "AI-Integrated Website",
+    description:
+      "A complete website with the AI receptionist and leads tracking built in from day one, not bolted on after launch.",
+  },
+];
+
+const CONTACT_METHODS = [
+  {
+    icon: Mail,
+    label: "Email",
+    value: "hamzaa0721@gmail.com",
+    href: "mailto:hamzaa0721@gmail.com",
+  },
+  {
+    icon: Phone,
+    label: "Call",
+    value: "+92 342 8256742",
+    href: "tel:+923428256742",
+  },
+  {
+    icon: MessageCircle,
+    label: "WhatsApp",
+    value: "Message us directly",
+    href: "https://wa.me/923428256742",
+  },
+];
+
 export default function Home() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
-    <div className="relative min-h-screen flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300">
-      {/* Dynamic Background Effects */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-b from-indigo-500/10 via-purple-500/5 to-transparent blur-3xl pointer-events-none" />
-      <div className="absolute top-1/3 right-10 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="relative min-h-screen flex flex-col overflow-x-hidden bg-[#F6F7F9] dark:bg-[#0A0D14] text-slate-900 dark:text-slate-100 transition-colors duration-300">
+      {/* Ambient background */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl h-[28rem] bg-[#3D6BFF]/10 dark:bg-[#3D6BFF]/[0.08] blur-[110px] pointer-events-none" />
+      <div className="absolute top-40 right-0 w-72 h-72 bg-[#FFB020]/10 dark:bg-[#FFB020]/[0.06] rounded-full blur-[100px] pointer-events-none" />
 
       {/* Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/70 dark:bg-slate-950/70 border-b border-slate-200/80 dark:border-slate-800/80">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/20">
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 dark:bg-[#0A0D14]/80 border-b border-slate-200/70 dark:border-white/10">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <a href="#" className="flex items-center gap-2.5">
+            <div className="relative p-2 rounded-lg bg-[#3D6BFF] text-white">
               <Bot className="w-5 h-5" />
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[#FFB020] border-2 border-white dark:border-[#0A0D14] animate-pulse" />
             </div>
-            <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
-              AI Receptionist Platform
-            </span>
+            <span className="font-bold text-base tracking-tight">{BRAND}</span>
+          </a>
+
+          {/* Desktop nav */}
+          <nav className="hidden md:flex items-center gap-8">
+            {NAV_LINKS.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
+
+          <div className="hidden md:flex items-center gap-3">
+            <ThemeToggle />
+            <a
+              href="#contact"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold bg-[#3D6BFF] hover:bg-[#3358d9] text-white transition-colors"
+            >
+              Book a Call
+            </a>
           </div>
 
-          <div className="flex items-center gap-4">
-            <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              Phase 1 Online
-            </span>
+          {/* Mobile controls */}
+          <div className="flex items-center gap-2 md:hidden">
             <ThemeToggle />
+            <button
+              onClick={() => setMenuOpen((v) => !v)}
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={menuOpen}
+              className="p-2 rounded-lg border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300"
+            >
+              {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile nav panel */}
+        {menuOpen && (
+          <div className="md:hidden border-t border-slate-200/70 dark:border-white/10 bg-white/95 dark:bg-[#0A0D14]/95 px-6 py-4 flex flex-col gap-1">
+            {NAV_LINKS.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                className="py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300"
+              >
+                {link.label}
+              </a>
+            ))}
+            <a
+              href="#contact"
+              onClick={() => setMenuOpen(false)}
+              className="mt-2 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold bg-[#3D6BFF] text-white"
+            >
+              Book a Call
+            </a>
+          </div>
+        )}
       </header>
 
-      {/* Hero Section */}
-      <main className="flex-1 max-w-7xl mx-auto px-6 pt-16 pb-24 flex flex-col justify-center items-center text-center relative z-10">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-300 text-sm font-medium mb-8 animate-fade-in">
-          <Sparkles className="w-4 h-4 text-indigo-500" />
-          <span>Zero-Budget Multi-Tenant Platform</span>
-        </div>
-
-        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight max-w-4xl leading-[1.15]">
-          Autonomous AI Concierge for Every{" "}
-          <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
-            Modern Business
-          </span>
-        </h1>
-
-        <p className="mt-6 text-lg sm:text-xl text-slate-600 dark:text-slate-400 max-w-2xl font-normal leading-relaxed">
-          Serve unlimited tenant businesses from a single, high-performance deployment.
-          Fully customized branding, strict RLS data security, and embeddable widget integration.
-        </p>
-
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-          <Link
-            href="/smile-dental"
-            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-lg shadow-indigo-500/25 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-          >
-            <span>Preview Tenant Route (`/smile-dental`)</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-          <a
-            href="#features"
-            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-all duration-200"
-          >
-            <span>Architecture Overview</span>
-          </a>
-        </div>
-
-        {/* Feature Grid */}
-        <div id="features" className="mt-24 w-full grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-          <div className="p-6 rounded-2xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-shadow">
-            <div className="p-3 w-fit rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 mb-4">
-              <Layers className="w-6 h-6" />
+      <main className="flex-1 relative z-10">
+        {/* Hero */}
+        <section className="max-w-6xl mx-auto px-6 pt-20 pb-24 grid lg:grid-cols-[1.1fr_0.9fr] gap-14 items-center">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 font-mono text-[11px] tracking-widest uppercase text-slate-500 dark:text-slate-400 mb-7">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#FFB020] animate-pulse" />
+              Now building for new clients
             </div>
-            <h3 className="text-lg font-bold mb-2">Dynamic Multi-Tenancy</h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-              No hardcoded data. Every tenant operates dynamically via Supabase URL slugs and business IDs.
+
+            <h1 className="text-4xl sm:text-5xl lg:text-[3.4rem] font-extrabold tracking-tight leading-[1.12]">
+              We build AI systems for businesses that never stop working.
+            </h1>
+
+            <p className="mt-6 text-lg text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl">
+              From the first missed call to the last unqualified lead, we replace the gaps in your
+              front office with AI that answers, books, and follows up automatically, so your team
+              can focus on the customers already through the door.
+            </p>
+
+            <div className="mt-9 flex flex-wrap items-center gap-4">
+              <a
+                href="#projects"
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-semibold bg-[#3D6BFF] hover:bg-[#3358d9] text-white shadow-lg shadow-[#3D6BFF]/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <span>View Live Projects</span>
+                <ArrowRight className="w-4 h-4" />
+              </a>
+              <a
+                href="#contact"
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-semibold bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/10 transition-all duration-200"
+              >
+                <span>Talk to Us</span>
+              </a>
+            </div>
+          </div>
+
+          {/* Signature element: live "console" of deployed tenant systems */}
+          <div className="rounded-2xl overflow-hidden border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F1420] shadow-xl shadow-slate-900/5">
+            <div className="flex items-center gap-1.5 px-4 py-3 bg-slate-100 dark:bg-white/[0.04] border-b border-slate-200 dark:border-white/10">
+              <span className="w-2.5 h-2.5 rounded-full bg-red-400/70" />
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-400/70" />
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400/70" />
+              <span className="ml-3 font-mono text-[11px] text-slate-400 dark:text-slate-500">
+                systems.live
+              </span>
+            </div>
+            <div className="p-5 font-mono text-[12.5px] leading-7 text-slate-600 dark:text-slate-400">
+              <p>
+                <span className="text-[#3D6BFF]">GET</span> /smile-dental{" "}
+                <span className="text-emerald-500">200 OK</span>{" "}
+                <span className="text-slate-400 dark:text-slate-600">142ms</span>
+              </p>
+              <p>
+                <span className="text-[#3D6BFF]">GET</span> /apex-law{" "}
+                <span className="text-emerald-500">200 OK</span>{" "}
+                <span className="text-slate-400 dark:text-slate-600">98ms</span>
+              </p>
+              <p>
+                <span className="text-[#FFB020]">POST</span> /api/leads{" "}
+                <span className="text-emerald-500">201 Created</span>
+              </p>
+              <p>
+                <span className="text-[#3D6BFF]">GET</span> /api/receptionist/status{" "}
+                <span className="text-emerald-500">online</span>
+              </p>
+              <p className="text-slate-400 dark:text-slate-600">
+                <span className="animate-pulse">▌</span> listening for new requests…
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Projects */}
+        <section id="projects" className="max-w-6xl mx-auto px-6 py-20 border-t border-slate-200/70 dark:border-white/10">
+          <div className="max-w-xl mb-12">
+            <span className="font-mono text-[11px] tracking-widest uppercase text-[#3D6BFF]">
+              Deployed Systems
+            </span>
+            <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight">
+              See it running
+            </h2>
+            <p className="mt-3 text-slate-600 dark:text-slate-400">
+              Two live client deployments, each running its own AI receptionist and lead pipeline
+              on isolated, secured data.
             </p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-shadow">
-            <div className="p-3 w-fit rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 mb-4">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-            <h3 className="text-lg font-bold mb-2">Row Level Security</h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-              Strict database isolation. Visitors can submit leads, while dashboard owners only view their own leads.
+          <div className="grid md:grid-cols-2 gap-6">
+            {PROJECTS.map((project) => (
+              <Link
+                key={project.slug}
+                href={project.slug}
+                className="group relative p-7 rounded-2xl bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 hover:border-[#3D6BFF]/40 dark:hover:border-[#3D6BFF]/40 transition-colors"
+              >
+                <div className="flex items-center justify-between mb-5">
+                  <span className="font-mono text-xs text-slate-400 dark:text-slate-500">
+                    {project.slug}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[11px] font-semibold">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    LIVE
+                  </span>
+                </div>
+
+                <h3 className="text-xl font-bold mb-1">{project.name}</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-500 mb-4">{project.industry}</p>
+                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
+                  {project.description}
+                </p>
+
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {project.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-white/5 text-xs font-medium text-slate-600 dark:text-slate-400"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#3D6BFF]">
+                  Visit project
+                  <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* Services */}
+        <section id="services" className="max-w-6xl mx-auto px-6 py-20 border-t border-slate-200/70 dark:border-white/10">
+          <div className="max-w-xl mb-12">
+            <span className="font-mono text-[11px] tracking-widest uppercase text-[#3D6BFF]">
+              What We Build
+            </span>
+            <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight">
+              Services
+            </h2>
+            <p className="mt-3 text-slate-600 dark:text-slate-400">
+              Every engagement starts with your front office and ends with a system that runs
+              itself.
             </p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-shadow">
-            <div className="p-3 w-fit rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mb-4">
-              <Code2 className="w-6 h-6" />
-            </div>
-            <h3 className="text-lg font-bold mb-2">Embeddable Script</h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-              Single-line script integration allowing any client website to embed the AI Receptionist seamlessly.
+          <div className="grid sm:grid-cols-2 gap-6">
+            {SERVICES.map((service) => (
+              <div
+                key={service.title}
+                className="p-6 rounded-2xl bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 hover:shadow-md transition-shadow"
+              >
+                <div className="p-3 w-fit rounded-xl bg-[#3D6BFF]/10 text-[#3D6BFF] mb-4">
+                  <service.icon className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-bold mb-2">{service.title}</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  {service.description}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 p-5 rounded-2xl bg-slate-100/70 dark:bg-white/[0.03] border border-slate-200/60 dark:border-white/10 flex items-start gap-3">
+            <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              Every build is multi-tenant ready and data-isolated by default, so your business's
+              data stays fully separate from every other client we serve.
             </p>
           </div>
-        </div>
+        </section>
 
-        {/* Phase Checklist Badge */}
-        <div className="mt-16 p-6 rounded-2xl bg-slate-100/70 dark:bg-slate-900/40 border border-slate-200/60 dark:border-slate-800/60 max-w-xl w-full">
-          <div className="flex items-center justify-between mb-4">
-            <span className="font-semibold text-sm">Phase 1 DoD Checklist</span>
-            <span className="text-xs text-slate-500 dark:text-slate-400">100% Ready</span>
+        {/* Contact */}
+        <section id="contact" className="max-w-6xl mx-auto px-6 py-20 border-t border-slate-200/70 dark:border-white/10">
+          <div className="max-w-xl mb-12">
+            <span className="font-mono text-[11px] tracking-widest uppercase text-[#3D6BFF]">
+              Get In Touch
+            </span>
+            <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight">
+              Let's build your AI system
+            </h2>
+            <p className="mt-3 text-slate-600 dark:text-slate-400">
+              Tell us about your business and we'll show you exactly what an AI receptionist could
+              handle for you.
+            </p>
           </div>
-          <div className="space-y-2.5 text-left text-sm text-slate-700 dark:text-slate-300">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-              <span>Next.js 15 App Router & TypeScript initialized</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-              <span>Tailwind CSS & dark mode toggle configured</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-              <span>Supabase SDK, Gemini SDK, Zod & RHF installed</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-              <span>Strict .env.local git exclusion verified</span>
-            </div>
+
+          <div className="grid sm:grid-cols-3 gap-5">
+            {CONTACT_METHODS.map((method) => (
+              <a
+                key={method.label}
+                href={method.href}
+                target={method.href.startsWith("http") ? "_blank" : undefined}
+                rel={method.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                className="group p-6 rounded-2xl bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 hover:border-[#3D6BFF]/40 dark:hover:border-[#3D6BFF]/40 transition-colors"
+              >
+                <div className="p-3 w-fit rounded-xl bg-[#3D6BFF]/10 text-[#3D6BFF] mb-4">
+                  <method.icon className="w-5 h-5" />
+                </div>
+                <p className="text-xs font-mono uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1.5">
+                  {method.label}
+                </p>
+                <p className="text-sm font-semibold break-words">{method.value}</p>
+              </a>
+            ))}
           </div>
-        </div>
+        </section>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200/80 dark:border-slate-800/80 py-8 text-center text-xs text-slate-500 dark:text-slate-400">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p>© 2026 AI Receptionist Platform. Built on Zero-Budget Free Tier Stack.</p>
-          <div className="flex items-center gap-4">
-            <span>Next.js 15</span>
-            <span>•</span>
-            <span>Supabase</span>
-            <span>•</span>
-            <span>Gemini API</span>
-          </div>
+      <footer className="relative z-10 border-t border-slate-200/70 dark:border-white/10 py-8 text-center text-xs text-slate-500 dark:text-slate-400">
+        <div className="max-w-6xl mx-auto  px-6 flex flex-col sm:flex-row items-center justify-between gap-4w">
+          <p>© 2026 {BRAND}. Intelligent AI solutions for modern businesses.</p>
+
         </div>
       </footer>
     </div>
