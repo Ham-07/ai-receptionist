@@ -34,7 +34,7 @@ export default async function LoginPage() {
                 <Bot className="w-5 h-5" />
               </div>
               <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
-                AI Receptionist Platform
+                Systemic AI
               </span>
             </Link>
           </div>
