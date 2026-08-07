@@ -12,6 +12,11 @@ export interface WidgetSettings {
   position?: "bottom-right" | "bottom-left";
   greeting?: string;
   themeColor?: string;
+  category?: string;
+  tagline?: string;
+  description?: string;
+  address?: string;
+  [key: string]: any;
 }
 
 export interface Business {

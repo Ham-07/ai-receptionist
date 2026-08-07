@@ -15,7 +15,6 @@
   }
 
   // Determine base URL from the script source URL
-  let baseUrl = "http://localhost:3000";
   if (scriptEl.src) {
     try {
       const url = new URL(scriptEl.src);
