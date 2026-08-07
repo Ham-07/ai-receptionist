@@ -388,9 +388,15 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="relative z-10 border-t border-slate-200/70 dark:border-white/10 py-8 text-center text-xs text-slate-500 dark:text-slate-400">
-        <div className="max-w-6xl mx-auto  px-6 flex flex-col sm:flex-row items-center justify-between gap-4w">
-          <p>© 2026 {BRAND}. Intelligent AI solutions for modern businesses.</p>
-
+        <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p>© 2026 {BRAND}.Building the future of AI customer experiences.</p>
+          <div className="flex items-center gap-4 font-mono">
+            <span>Privacy </span>
+            <span>•</span>
+            <span> Terms</span>
+            <span>•</span>
+            <span>Contact</span>
+          </div>
         </div>
       </footer>
     </div>
