@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   title: "Systemic AI Platform — Autonomous Business Concierge",
   description:
     "Multi-tenant AI Receptionist platform serving custom branding, real-time context-aware chat, and automated lead capture for modern businesses.",
+  icons: {
+    icon: "/icon.png"
+  }
 };
 
 export default function RootLayout({

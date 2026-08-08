@@ -17,6 +17,7 @@ import {
   ArrowRight,
   ArrowUpRight,
   CheckCircle2,
+  ArrowLeft,
 } from "lucide-react";
 
 // Single edit point for the brand name shown in the navbar and footer.
@@ -260,9 +261,15 @@ export default function Home() {
               See it running
             </h2>
             <p className="mt-3 text-slate-600 dark:text-slate-400">
-              Two live client deployments, each running its own AI receptionist and lead pipeline
-              on isolated, secured data.
-            </p>
+              Two live, secure AI receptionist demos run on isolated, secured data and let you generate test leads business owners can view both accounts' leads on the dashboard.</p>
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors mt-1"
+            >
+              <ArrowRight className="w-4 h-4" />
+              Click here to visit Dashboard
+            </Link>
+
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
@@ -402,3 +409,4 @@ export default function Home() {
     </div>
   );
 }
+
